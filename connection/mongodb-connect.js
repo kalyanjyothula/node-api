@@ -8,9 +8,9 @@ MongoClient.connect("mongodb://localhost:27017/", (err, client) => {
   const db = client.db("Sampledb");
   db.collection("users").insertOne(
     {
-      name: "kalyan",
-      surname: "J",
-      id: "R141081"
+      name: "Kalyan Chakravarthi",
+      surname: "Jyothula",
+      id: "R141080"
     },
     (err, result) => {
       if (err) {
