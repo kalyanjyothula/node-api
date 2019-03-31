@@ -29,4 +29,12 @@ app.get("/todos", (req, res) => {
     .catch(err => res.send(err));
 });
 
+app.get("/todos/:id", (req, res) => {
+  Todo.findById(req.params.id)
+    .then(data => {
+      res.send({ data });
+    })
+    .catch(err => res.send(err));
+});
+
 app.listen(3000, () => console.log("application running on port 3000"));
