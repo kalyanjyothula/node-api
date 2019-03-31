@@ -39,4 +39,10 @@ app.get("/todos/:id", (req, res) => {
     .catch(err => res.send(err));
 });
 
+app.delete("/todos/:id", (req, res) => {
+  Todo.findByIdAndRemove(req.params.id).
+  then(data => res.send(data))
+  .catch(err => res.send(err));
+})
+
 app.listen(port, () => console.log("application running on port ",port));
