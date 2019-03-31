@@ -1,5 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const _ = require("lodash");
+const { ObjectID } = require("mongodb");
 
 const { mongoose } = require("./db/mongoose");
 
@@ -40,9 +42,28 @@ app.get("/todos/:id", (req, res) => {
 });
 
 app.delete("/todos/:id", (req, res) => {
-  Todo.findByIdAndRemove(req.params.id).
-  then(data => res.send(data))
-  .catch(err => res.send(err));
-})
+  Todo.findByIdAndRemove(req.params.id)
+    .then(data => res.send(data))
+    .catch(err => res.send(err));
+});
 
-app.listen(port, () => console.log("application running on port ",port));
+app.patch("/todos/:id", (req, res) => {
+  const id = req.params.id;
+  let body = _.pick(req.body, ["surname"]);
+
+  if (!ObjectID.isValid(id)) {
+    return res.send();
+  }
+  //body.surname = req.body.surname;
+
+  Todo.findByIdAndUpdate(id, { $set: body }, { new: true })
+    .then(data => {
+      if(!data) {
+          return res.status(404).send();
+      }
+      res.send({ data })
+    })
+    .catch(err => res.send(err));
+});
+
+app.listen(port, () => console.log("application running on port ", port));
