@@ -1,22 +1,57 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const _ = require("lodash");
 
-const users = mongoose.model("users", {
-  name: {
-    type: String
-  },
-  age: {
-    type: Number
-  },
-  surname: {
+const userSchema = new mongoose.Schema({
+  email: {
     type: String,
     required: true,
     minlength: 1,
+    trim: true,
+    unique: true,
+    validate: {
+      validator: validator.isEmail,
+      message: "{VALUE} is not valid email"
+    }
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6,
     trim: true
   },
-  id: {
-    type: String,
-    default: "unknown"
-  }
+  tokens: [
+    {
+      access: {
+        type: String,
+        required: true
+      },
+      token: {
+        type: String,
+        required: true
+      }
+    }
+  ]
 });
+
+userSchema.methods.generateAuthToken = function() {
+  const user = this;
+  const access = "auth";
+  const token = jwt
+    .sign({ _id: user._id.toHexString(), access }, "secret:over-flow")
+    .toString();
+
+  user.tokens.push({ access, token });
+
+  return user.save().then(() => token);
+};
+
+userSchema.methods.toJSON = function() {
+  const user = this;
+  // const userObject = user.toObject();
+  return _.pick(user, ['email', '_id']);
+}
+const users = mongoose.model("users", userSchema);
 
 module.exports = { users };

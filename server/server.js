@@ -13,6 +13,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+/* --------------- post apis ------------------------*/
 
 app.post("/todos", (req, res) => {
   const todo = new Todo({
@@ -24,6 +25,21 @@ app.post("/todos", (req, res) => {
     .then(data => res.send(data))
     .catch(err => res.send(err));
 });
+
+app.post("/users", (req, res) => {
+  const body = _.pick(req.body, ["email", "password"]);
+  const user = new users(body);
+
+  user
+    .save()
+    .then(data => {
+      return data.generateAuthToken();
+    })
+    .then(token => res.header('x-auth', token).send(user))
+    .catch(err => res.send(err));
+});
+
+/* -------------------- get apis -------------------------------*/
 
 app.get("/todos", (req, res) => {
   Todo.find()
@@ -41,11 +57,7 @@ app.get("/todos/:id", (req, res) => {
     .catch(err => res.send(err));
 });
 
-app.delete("/todos/:id", (req, res) => {
-  Todo.findByIdAndRemove(req.params.id)
-    .then(data => res.send(data))
-    .catch(err => res.send(err));
-});
+/* ----------------------- patch apis ------------------------*/
 
 app.patch("/todos/:id", (req, res) => {
   const id = req.params.id;
@@ -58,11 +70,19 @@ app.patch("/todos/:id", (req, res) => {
 
   Todo.findByIdAndUpdate(id, { $set: body }, { new: true })
     .then(data => {
-      if(!data) {
-          return res.status(404).send();
+      if (!data) {
+        return res.status(404).send();
       }
-      res.send({ data })
+      res.send({ data });
     })
+    .catch(err => res.send(err));
+});
+
+/* ---------------------- delete apis ---------------------------------*/
+
+app.delete("/todos/:id", (req, res) => {
+  Todo.findByIdAndRemove(req.params.id)
+    .then(data => res.send(data))
     .catch(err => res.send(err));
 });
 
