@@ -12,12 +12,20 @@ app.use(bodyParser.json());
 
 app.post("/todos", (req, res) => {
   const todo = new Todo({
-    surname: req.body.surname,
+    surname: req.body.surname
   });
 
   todo
     .save()
     .then(data => res.send(data))
+    .catch(err => res.send(err));
+});
+
+app.get("/todos", (req, res) => {
+  Todo.find()
+    .then(data => {
+      res.send({ data });
+    })
     .catch(err => res.send(err));
 });
 
