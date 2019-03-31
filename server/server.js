@@ -8,6 +8,8 @@ const { Todo } = require("./models/todo");
 
 const app = express();
 
+const port = process.env.PORT || 3000;
+
 app.use(bodyParser.json());
 
 app.post("/todos", (req, res) => {
@@ -37,4 +39,4 @@ app.get("/todos/:id", (req, res) => {
     .catch(err => res.send(err));
 });
 
-app.listen(3000, () => console.log("application running on port 3000"));
+app.listen(port, () => console.log("application running on port ",port));
