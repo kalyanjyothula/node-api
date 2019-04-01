@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const _ = require("lodash");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -52,6 +53,39 @@ userSchema.methods.toJSON = function() {
   // const userObject = user.toObject();
   return _.pick(user, ['email', '_id']);
 }
+
+userSchema.statics.findByToken = function(token) {
+  let user = this;
+  let decoded;
+   try{
+     decoded = jwt.verify(token,"secret:over-flow")
+   }
+   catch(err) {
+    console.log('error',err)
+   }
+   console.log('user', decoded);
+   return user.findOne({
+     _id: decoded._id,
+     'tokens.token': token,
+     'tokens.access': 'auth',
+   });
+}
+
+userSchema.pre('save', function(next){
+  const user = this;
+  if(user.isModified('password')){
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        user.password = hash;
+        next();
+      });
+    })
+  }else {
+    next();
+  }
+})
+ 
 const users = mongoose.model("users", userSchema);
+
 
 module.exports = { users };

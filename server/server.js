@@ -7,6 +7,7 @@ const { mongoose } = require("./db/mongoose");
 
 const { users } = require("./models/user");
 const { Todo } = require("./models/todo");
+const { authentication } = require("./middleware/authentication");
 
 const app = express();
 
@@ -35,7 +36,7 @@ app.post("/users", (req, res) => {
     .then(data => {
       return data.generateAuthToken();
     })
-    .then(token => res.header('x-auth', token).send(user))
+    .then(token => res.header("x-auth", token).send(user))
     .catch(err => res.send(err));
 });
 
@@ -55,6 +56,10 @@ app.get("/todos/:id", (req, res) => {
       res.send({ data });
     })
     .catch(err => res.send(err));
+});
+
+app.get("/users/login", authentication, (req, res) => {
+  res.send(req.user);
 });
 
 /* ----------------------- patch apis ------------------------*/
